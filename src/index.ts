@@ -8,6 +8,7 @@ import { config } from './config/env';
 import { testConnection } from './config/database';
 import passport from './config/passport.js';
 import usersRouter from './routes/users.js';  // ⬅️ Добавили
+import vocabulariesRouter from './routes/vocabularies.js';  // ⬅️ Добавили
 
 const app = express();
 const PORT = config.port;
@@ -21,6 +22,7 @@ app.use(passport.initialize());
 app.use('/health', healthRouter);
 app.use('/auth', authRouter);
 app.use('/users', usersRouter);  // ⬅️ Добавили
+app.use('/vocabularies', vocabulariesRouter);  // ⬅️ Добавили
 
 // 404 handler (после routes, перед error handler)
 app.use(notFoundHandler);
