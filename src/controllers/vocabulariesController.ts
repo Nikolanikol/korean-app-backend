@@ -12,7 +12,8 @@ export const getVocabularies = async (
 ) => {
   try {
     const userId = (req.user as any)?.userId;
-
+  const limit = parseInt(req.query.limit as string) || 20;
+    const offset = parseInt(req.query.offset as string) || 0;
     if (!userId) {
       return res.status(401).json({
         error: {
@@ -42,15 +43,20 @@ export const getVocabularies = async (
         updated_at
       FROM vocabularies 
       WHERE user_id = $1 
-      ORDER BY created_at DESC`,
-      [userId]
+      ORDER BY created_at DESC
+      LIMIT $2 OFFSET $3`,
+      [userId, limit, offset]
     );
 
     console.log(`✅ Retrieved ${result.rows.length} vocabularies for user:`, userId);
 
     res.json({
       vocabularies: result.rows,
-      total: result.rows.length
+  count: result.rows.length,
+  limit,
+  offset,
+  hasMore: result.rows.length === limit
+
     });
   } catch (error) {
     console.error('❌ Get Vocabularies Error:', error);

@@ -16,6 +16,7 @@ import publicLibraryRouter from './routes/publicLibrary.js';
 import statsRouter from './routes/stats.js';
 import exercisesRouter from './routes/exercises.js';
 import starterPacksRouter from './routes/starterPacks.js';
+import { apiLimiter } from './middleware/rateLimiter.js';
 
 const app = express();
 const PORT = config.port;
@@ -25,6 +26,8 @@ const PORT = config.port;
 setupMiddleware(app);
 // Initialize Passport
 app.use(passport.initialize());
+app.use('/api', apiLimiter);
+
 // Routes
 app.use('/health', healthRouter);
 app.use('/auth', authRouter);
