@@ -14,6 +14,7 @@ import studyRouter from './routes/study.js';  // ⬅️ Добавили
 import collectionsRouter from './routes/collections.js';
 import publicLibraryRouter from './routes/publicLibrary.js';
 import statsRouter from './routes/stats.js';
+import exercisesRouter from './routes/exercises.js';
 
 const app = express();
 const PORT = config.port;
@@ -33,6 +34,7 @@ app.use('/study', studyRouter);  // ⬅️ Добавили
 app.use('/collections', collectionsRouter);
 app.use('/library', publicLibraryRouter);
 app.use('/stats', statsRouter);
+app.use('/exercises', exercisesRouter);
 
 
 // 404 handler (после routes, перед error handler)
