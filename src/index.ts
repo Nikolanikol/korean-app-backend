@@ -15,6 +15,7 @@ import collectionsRouter from './routes/collections.js';
 import publicLibraryRouter from './routes/publicLibrary.js';
 import statsRouter from './routes/stats.js';
 import exercisesRouter from './routes/exercises.js';
+import starterPacksRouter from './routes/starterPacks.js';
 
 const app = express();
 const PORT = config.port;
@@ -35,6 +36,7 @@ app.use('/collections', collectionsRouter);
 app.use('/library', publicLibraryRouter);
 app.use('/stats', statsRouter);
 app.use('/exercises', exercisesRouter);
+app.use('/starter-packs', starterPacksRouter);
 
 
 // 404 handler (после routes, перед error handler)
