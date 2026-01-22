@@ -16,6 +16,16 @@ export const getDueWords = async (
     const userId = (req.user as any)?.userId;
     const { vocabularyId } = req.query;
 
+    // Парсим лимит из query params (default: 20)
+    const rawLimit = req.query.limit as string;
+    let limit = rawLimit ? parseInt(rawLimit, 10) : 20;
+    
+    // Валидация: от 1 до 100
+    if (isNaN(limit) || limit < 1) {
+      limit = 20;
+    } else if (limit > 100) {
+      limit = 100;
+    }
     if (!userId) {
       return res.status(401).json({
         error: {
@@ -63,15 +73,18 @@ export const getDueWords = async (
       params.push(vocabularyId);
     }
 
-    query += ` ORDER BY wp.next_review_at ASC LIMIT 50`;
-
+    query += `ORDER BY wp.next_review_at ASC`;
+        params.push(limit);
+    query += ` LIMIT $${params.length}`
     const result = await pool.query(query, params);
 
     console.log(`✅ Found ${result.rows.length} due words for user:`, userId);
 
-    res.json({
+      res.json({
       words: result.rows,
       total: result.rows.length,
+      limit,
+      hasMore: result.rows.length === limit,
       vocabularyId: vocabularyId || null
     });
   } catch (error) {
