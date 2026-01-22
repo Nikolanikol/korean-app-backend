@@ -11,6 +11,7 @@ import usersRouter from './routes/users.js';  // ⬅️ Добавили
 import vocabulariesRouter from './routes/vocabularies.js';  // ⬅️ Добавили
 import wordsRouter from './routes/words.js';  // ⬅️ Добавили
 import studyRouter from './routes/study.js';  // ⬅️ Добавили
+import collectionsRouter from './routes/collections.js';
 
 const app = express();
 const PORT = config.port;
@@ -27,6 +28,8 @@ app.use('/users', usersRouter);  // ⬅️ Добавили
 app.use('/vocabularies', vocabulariesRouter);  // ⬅️ Добавили
 app.use('/', wordsRouter);  // ⬅️ Добавили (без префикса, т.к. пути уже полные)
 app.use('/study', studyRouter);  // ⬅️ Добавили
+app.use('/collections', collectionsRouter);
+
 
 // 404 handler (после routes, перед error handler)
 app.use(notFoundHandler);
