@@ -9,6 +9,7 @@ import { testConnection } from './config/database';
 import passport from './config/passport.js';
 import usersRouter from './routes/users.js';  // ⬅️ Добавили
 import vocabulariesRouter from './routes/vocabularies.js';  // ⬅️ Добавили
+import wordsRouter from './routes/words.js';  // ⬅️ Добавили
 
 const app = express();
 const PORT = config.port;
@@ -23,6 +24,7 @@ app.use('/health', healthRouter);
 app.use('/auth', authRouter);
 app.use('/users', usersRouter);  // ⬅️ Добавили
 app.use('/vocabularies', vocabulariesRouter);  // ⬅️ Добавили
+app.use('/', wordsRouter);  // ⬅️ Добавили (без префикса, т.к. пути уже полные)
 
 // 404 handler (после routes, перед error handler)
 app.use(notFoundHandler);

@@ -167,46 +167,74 @@ export const createVocabulary = async (
       isPublic 
     } = req.body;
 
-    // Валидация
-    if (!title || title.trim().length === 0) {
-      return res.status(400).json({
-        error: {
-          message: 'Title is required',
-          code: 'TITLE_REQUIRED'
-        }
-      });
+   if (!title || title.trim().length === 0) {
+  return res.status(400).json({
+    error: {
+      message: 'Title is required',
+      code: 'TITLE_REQUIRED'
     }
+  });
+}
 
-    // Валидация difficulty_level
-    if (difficultyLevel && !['beginner', 'intermediate', 'advanced'].includes(difficultyLevel)) {
-      return res.status(400).json({
-        error: {
-          message: 'Invalid difficulty level. Must be: beginner, intermediate, or advanced',
-          code: 'INVALID_DIFFICULTY'
-        }
-      });
+if (!description || description.trim().length === 0) {
+  return res.status(400).json({
+    error: {
+      message: 'Description is required',
+      code: 'DESCRIPTION_REQUIRED'
     }
+  });
+}
+
+if (!category || category.trim().length === 0) {
+  return res.status(400).json({
+    error: {
+      message: 'Category is required',
+      code: 'CATEGORY_REQUIRED'
+    }
+  });
+}
+
+if (!difficultyLevel) {
+  return res.status(400).json({
+    error: {
+      message: 'Difficulty level is required',
+      code: 'DIFFICULTY_LEVEL_REQUIRED'
+    }
+  });
+}
+
+// Валидация difficulty_level
+if (!['beginner', 'intermediate', 'advanced'].includes(difficultyLevel)) {
+  return res.status(400).json({
+    error: {
+      message: 'Invalid difficulty level. Must be: beginner, intermediate, or advanced',
+      code: 'INVALID_DIFFICULTY'
+    }
+  });
+}
+
 
     // Создаем словарь
-    const result = await pool.query(
-      `INSERT INTO vocabularies 
-        (user_id, title, description, language, difficulty_level, category, tags, is_public)
-      VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
-      RETURNING 
-        id, user_id, title, description, language, difficulty_level, 
-        category, tags, is_public, is_official, word_count, fork_count, 
-        study_count, created_at, updated_at`,
-      [
-        userId,
-        title.trim(),
-        description || null,
-        language || 'ko',
-        difficultyLevel || null,
-        category || null,
-        tags || [],
-        isPublic || false
-      ]
-    );
+// Создаем словарь
+const result = await pool.query(
+  `INSERT INTO vocabularies 
+    (user_id, title, description, language, difficulty_level, category, tags, is_public)
+  VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+  RETURNING 
+    id, user_id, title, description, language, difficulty_level, 
+    category, tags, is_public, is_official, word_count, fork_count, 
+    study_count, created_at, updated_at`,
+  [
+    userId,
+    title.trim(),
+    description.trim(),
+    language || 'ko',
+    difficultyLevel,
+    category.trim(),
+    tags || [],
+    isPublic || false
+  ]
+);
 
     const vocabulary = result.rows[0];
 
