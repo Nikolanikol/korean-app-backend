@@ -12,6 +12,7 @@ import vocabulariesRouter from './routes/vocabularies.js';  // ⬅️ Добав
 import wordsRouter from './routes/words.js';  // ⬅️ Добавили
 import studyRouter from './routes/study.js';  // ⬅️ Добавили
 import collectionsRouter from './routes/collections.js';
+import publicLibraryRouter from './routes/publicLibrary.js';
 
 const app = express();
 const PORT = config.port;
@@ -29,6 +30,7 @@ app.use('/vocabularies', vocabulariesRouter);  // ⬅️ Добавили
 app.use('/', wordsRouter);  // ⬅️ Добавили (без префикса, т.к. пути уже полные)
 app.use('/study', studyRouter);  // ⬅️ Добавили
 app.use('/collections', collectionsRouter);
+app.use('/library', publicLibraryRouter);
 
 
 // 404 handler (после routes, перед error handler)
