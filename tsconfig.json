@@ -1,0 +1,31 @@
+{
+  "compilerOptions": {
+    // Папки
+    "rootDir": "./src",
+    "outDir": "./dist",
+
+    // ES Modules (современный подход)
+    "module": "ESNext",
+    "target": "ES2022",
+    "moduleResolution": "bundler",
+    
+    // Типы
+    "types": ["node"],
+    "esModuleInterop": true,
+    
+    // Выходные файлы
+    "sourceMap": true,
+    "declaration": true,
+    
+    // Строгость
+    "strict": true,
+    "skipLibCheck": true,
+    "forceConsistentCasingInFileNames": true,
+    
+    // Остальное
+    "resolveJsonModule": true,
+    "isolatedModules": true
+  },
+  "include": ["src/**/*"],
+  "exclude": ["node_modules", "dist"]
+}
