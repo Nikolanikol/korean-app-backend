@@ -431,3 +431,199 @@ export const deleteVocabulary = async (
     next(error);
   }
 };
+
+/**
+ * PATCH /vocabularies/:id/share
+ * Сделать словарь публичным или приватным
+ */
+export const makeVocabularyPublic = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const userId = (req.user as any)?.userId;
+    const { id } = req.params;
+    const { isPublic } = req.body;
+
+    if (!userId) {
+      return res.status(401).json({
+        error: {
+          message: 'User not authenticated',
+          code: 'NO_USER_ID'
+        }
+      });
+    }
+
+    // Валидация
+    if (typeof isPublic !== 'boolean') {
+      return res.status(400).json({
+        error: {
+          message: 'isPublic must be a boolean value',
+          code: 'INVALID_IS_PUBLIC'
+        }
+      });
+    }
+
+    // Проверяем что словарь существует и принадлежит пользователю
+    const checkResult = await pool.query(
+      'SELECT user_id, is_public FROM vocabularies WHERE id = $1',
+      [id]
+    );
+
+    if (checkResult.rows.length === 0) {
+      return res.status(404).json({
+        error: {
+          message: 'Vocabulary not found',
+          code: 'VOCABULARY_NOT_FOUND'
+        }
+      });
+    }
+
+    if (checkResult.rows[0].user_id !== userId) {
+      return res.status(403).json({
+        error: {
+          message: 'You can only change sharing settings for your own vocabularies',
+          code: 'ACCESS_DENIED'
+        }
+      });
+    }
+
+    // Обновляем статус публичности
+    const result = await pool.query(
+      `UPDATE vocabularies 
+       SET is_public = $1, updated_at = NOW()
+       WHERE id = $2
+       RETURNING 
+         id, user_id, title, description, language, difficulty_level, 
+         category, tags, is_public, is_official, word_count, fork_count, 
+         study_count, created_at, updated_at`,
+      [isPublic, id]
+    );
+
+    const vocabulary = result.rows[0];
+
+    console.log(`✅ Vocabulary ${isPublic ? 'shared publicly' : 'made private'}:`, vocabulary.id);
+
+    res.json({
+      vocabulary,
+      message: isPublic 
+        ? 'Vocabulary is now public and visible in the library' 
+        : 'Vocabulary is now private'
+    });
+  } catch (error) {
+    console.error('❌ Make Vocabulary Public Error:', error);
+    next(error);
+  }
+};
+// **
+//  * POST /vocabularies/:id/fork
+//  * Скопировать чужой словарь себе
+//  */
+export const forkVocabulary = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
+  try {
+    const userId = (req.user as any)?.userId;
+    const { id } = req.params;
+
+    if (!userId) {
+      return res.status(401).json({
+        error: {
+          message: 'User not authenticated',
+          code: 'NO_USER_ID'
+        }
+      });
+    }
+
+    // Получаем оригинальный словарь
+    const originalResult = await pool.query(
+      `SELECT * FROM vocabularies WHERE id = $1`,
+      [id]
+    );
+
+    if (originalResult.rows.length === 0) {
+      return res.status(404).json({
+        error: {
+          message: 'Vocabulary not found',
+          code: 'VOCABULARY_NOT_FOUND'
+        }
+      });
+    }
+
+    const original = originalResult.rows[0];
+
+    // Проверяем что словарь публичный (если это не свой словарь)
+    if (original.user_id !== userId && !original.is_public) {
+      return res.status(403).json({
+        error: {
+          message: 'Cannot fork private vocabulary',
+          code: 'VOCABULARY_NOT_PUBLIC'
+        }
+      });
+    }
+
+    // Нельзя форкнуть свой собственный словарь
+    if (original.user_id === userId) {
+      return res.status(400).json({
+        error: {
+          message: 'Cannot fork your own vocabulary',
+          code: 'CANNOT_FORK_OWN'
+        }
+      });
+    }
+
+    // Начинаем транзакцию
+    await pool.query('BEGIN');
+
+    try {
+      // Создаем копию словаря
+      const forkedResult = await pool.query(
+        `INSERT INTO vocabularies 
+          (user_id, title, description, language, difficulty_level, category, tags, is_public)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8)
+        RETURNING 
+          id, user_id, title, description, language, difficulty_level, 
+          category, tags, is_public, is_official, word_count, fork_count, 
+          study_count, created_at, updated_at`,
+        [
+          userId,
+          `${original.title} (копия)`,
+          original.description,
+          original.language,
+          original.difficulty_level,
+          original.category,
+          original.tags,
+          false // Копия всегда приватная по умолчанию
+        ]
+      );
+
+      const forkedVocabulary = forkedResult.rows[0];
+
+      // Увеличиваем fork_count у оригинала
+      await pool.query(
+        'UPDATE vocabularies SET fork_count = fork_count + 1 WHERE id = $1',
+        [id]
+      );
+
+      // Коммитим транзакцию
+      await pool.query('COMMIT');
+
+      console.log('✅ Vocabulary forked:', forkedVocabulary.id, 'from:', id);
+
+      res.status(201).json({
+        vocabulary: forkedVocabulary,
+        message: 'Vocabulary successfully copied to your library'
+      });
+    } catch (error) {
+      // Откатываем транзакцию при ошибке
+      await pool.query('ROLLBACK');
+      throw error;
+    }
+  } catch (error) {
+    console.error('❌ Fork Vocabulary Error:', error);
+    next(error);
+  }
+};

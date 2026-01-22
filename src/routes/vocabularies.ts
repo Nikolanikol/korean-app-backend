@@ -5,7 +5,9 @@ import {
   getVocabularyById,
   createVocabulary,
   updateVocabulary,
-  deleteVocabulary
+  deleteVocabulary,
+   makeVocabularyPublic,  // ⬅️ Добавили
+  forkVocabulary          
 } from '../controllers/vocabulariesController.js';
 
 const router = express.Router();
@@ -39,5 +41,17 @@ router.patch('/:id', authenticateToken, updateVocabulary);
  * Удалить словарь
  */
 router.delete('/:id', authenticateToken, deleteVocabulary);
+/**
+ * PATCH /vocabularies/:id/share
+ * Изменить публичность словаря (сделать публичным/приватным)
+ */
+router.patch('/:id/share', authenticateToken, makeVocabularyPublic);  // ⬅️ Добавили
+
+/**
+ * POST /vocabularies/:id/fork
+ * Скопировать чужой словарь себе
+ */
+router.post('/:id/fork', authenticateToken, forkVocabulary);  // ⬅️ Добавили
+
 
 export default router;
