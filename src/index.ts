@@ -48,9 +48,9 @@ app.use('/starter-packs', starterPacksRouter);
 app.use(notFoundHandler);
 // Error handler (должен быть ПОСЛЕДНИМ)
 app.use(errorHandler);
-app.listen(PORT, async() => {
-  console.log(`🚀 Server running on http://localhost:${PORT}`);
+app.listen(Number(PORT), '0.0.0.0', () => {
+  console.log(`🚀 Server running on http://0.0.0.0:${PORT}`);
     
-  // Test database connection
-  await testConnection();
+  // Test database connection (без await, просто вызов)
+  testConnection().catch(console.error);
 });
