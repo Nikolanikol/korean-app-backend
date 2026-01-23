@@ -1,11 +1,11 @@
 import express from 'express';
-import healthRouter from './routes/health';
-import authRouter from './routes/auth';
-import { setupMiddleware } from './middleware/common';
-import { errorHandler } from './middleware/errorHandler';
-import { notFoundHandler } from './middleware/notFoundHandler';
-import { config } from './config/env';
-import { testConnection } from './config/database';
+import healthRouter from './routes/health.js';
+import authRouter from './routes/auth.js';
+import { setupMiddleware } from './middleware/common.js';
+import { errorHandler } from './middleware/errorHandler.js';
+import { notFoundHandler } from './middleware/notFoundHandler.js';
+import { config } from './config/env.js';
+import { testConnection } from './config/database.js';
 import passport from './config/passport.js';
 import usersRouter from './routes/users.js';  // ⬅️ Добавили
 import vocabulariesRouter from './routes/vocabularies.js';  // ⬅️ Добавили

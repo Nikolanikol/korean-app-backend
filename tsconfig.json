@@ -5,10 +5,11 @@
     "outDir": "./dist",
 
     // ES Modules (современный подход)
-    "module": "ESNext",
+    "module": "Node16",
     "target": "ES2022",
-    "moduleResolution": "bundler",
-    
+    "moduleResolution": "Node16",
+
+
     // Типы
     "types": ["node"],
     "esModuleInterop": true,
