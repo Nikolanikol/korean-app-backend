@@ -17,7 +17,8 @@ import statsRouter from './routes/stats.js';
 import exercisesRouter from './routes/exercises.js';
 import starterPacksRouter from './routes/starterPacks.js';
 import { apiLimiter } from './middleware/rateLimiter.js';
-
+import swaggerUi from 'swagger-ui-express';
+import { swaggerSpec } from './config/swagger.js';
 const app = express();
 const PORT = config.port;
 
@@ -27,7 +28,8 @@ setupMiddleware(app);
 // Initialize Passport
 app.use(passport.initialize());
 app.use('/api', apiLimiter);
-
+// Swagger documentation
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
 // Routes
 app.use('/health', healthRouter);
 app.use('/auth', authRouter);
